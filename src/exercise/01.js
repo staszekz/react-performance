@@ -1,15 +1,15 @@
 // Code splitting
 // http://localhost:3000/isolated/exercise/01.js
 
-import * as React from 'react'
+import * as React from 'react';
 // 💣 remove this import
 // import Globe from '../globe'
-const Globe = React.lazy(() => import (/* webpackPrefetch: true */'../globe'))
+const loadGLobe = () => import(/* webpackPrefetch: true */ '../globe');
+const Globe = React.lazy(() => import(loadGLobe));
 // 🐨 use React.lazy to create a Globe component which uses a dynamic import
 // to get the Globe component from the '../globe' module.
-
 function App() {
-  const [showGlobe, setShowGlobe] = React.useState(false)
+  const [showGlobe, setShowGlobe] = React.useState(false);
 
   // 🐨 wrap the code below in a <React.Suspense /> component
   // with a fallback.
@@ -26,25 +26,28 @@ function App() {
         padding: '2rem',
       }}
     >
-      <label style={{marginBottom: '1rem'}}  onMouseOver={()=> import(/* webpackPrefetch: true */ '../globe')}>
+      <label
+        style={{marginBottom: '1rem'}}
+        onMouseOver={loadGLobe}
+        onFocus={loadGLobe}
+      >
         <input
           type="checkbox"
           checked={showGlobe}
-         
           onChange={e => setShowGlobe(e.target.checked)}
         />
         {' show globe'}
       </label>
-    <React.Suspense fallback={<div>loading...</div>}>
-      <div style={{width: 400, height: 400}}>
-        {showGlobe ? <Globe /> : null}
-      </div>
-    </React.Suspense>
+      <React.Suspense fallback={<div>loading...</div>}>
+        <div style={{width: 400, height: 400}}>
+          {showGlobe ? <Globe /> : null}
+        </div>
+      </React.Suspense>
     </div>
-  )
+  );
 }
 // 🦉 Note that if you're not on the isolated page, then you'll notice that this
 // app actually already has a React.Suspense component higher up in the tree
 // where this component is rendered, so you *could* just rely on that one.
 
-export default App
+export default App;
