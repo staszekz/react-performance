@@ -1,11 +1,11 @@
 // useMemo for expensive calculations
 // http://localhost:3000/isolated/exercise/02.js
 
-import * as React from 'react'
-import {useCombobox} from '../use-combobox'
-import {getItems} from '../filter-cities'
-import {useForceRerender} from '../utils'
-
+import * as React from 'react';
+import {useCombobox} from '../use-combobox';
+// import {getItems} from '../filter-cities';
+import {getItems} from '../workerized-filter-cities';
+import {useForceRerender, useAsync} from '../utils';
 function Menu({
   items,
   getMenuProps,
@@ -28,7 +28,7 @@ function Menu({
         </ListItem>
       ))}
     </ul>
-  )
+  );
 }
 
 function ListItem({
@@ -39,8 +39,8 @@ function ListItem({
   highlightedIndex,
   ...props
 }) {
-  const isSelected = selectedItem?.id === item.id
-  const isHighlighted = highlightedIndex === index
+  const isSelected = selectedItem?.id === item.id;
+  const isHighlighted = highlightedIndex === index;
   return (
     <li
       {...getItemProps({
@@ -53,17 +53,21 @@ function ListItem({
         ...props,
       })}
     />
-  )
+  );
 }
 
 function App() {
-  const forceRerender = useForceRerender()
-  const [inputValue, setInputValue] = React.useState('')
+  const forceRerender = useForceRerender();
+  const [inputValue, setInputValue] = React.useState('');
 
   // 🐨 wrap getItems in a call to `React.useMemo`
-  const allItems = getItems(inputValue)
-  const items = allItems.slice(0, 100)
-
+  // const allItems = React.useMemo(() => getItems(inputValue), [inputValue]);
+  const {data, run} = useAsync({data: [], status: 'pending'});
+  React.useEffect(() => {
+    run(getItems(inputValue));
+  }, [inputValue, run]);
+  // const allItems = data;
+  const items = data.slice(0, 100);
   const {
     selectedItem,
     highlightedIndex,
@@ -84,7 +88,7 @@ function App() {
           : 'Selection Cleared',
       ),
     itemToString: item => (item ? item.name : ''),
-  })
+  });
 
   return (
     <div className="city-app">
@@ -106,7 +110,7 @@ function App() {
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
