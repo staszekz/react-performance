@@ -1,10 +1,10 @@
 // React.memo for reducing unnecessary re-renders
 // http://localhost:3000/isolated/final/03.js
 
-import * as React from 'react'
-import {useCombobox} from '../use-combobox'
-import {getItems} from '../workerized-filter-cities'
-import {useAsync, useForceRerender} from '../utils'
+import * as React from 'react';
+import { useCombobox } from '../use-combobox';
+import { getItems } from '../workerized-filter-cities';
+import { useAsync, useForceRerender } from '../utils';
 
 function Menu({
   items,
@@ -28,9 +28,9 @@ function Menu({
         </ListItem>
       ))}
     </ul>
-  )
+  );
 }
-Menu = React.memo(Menu)
+Menu = React.memo(Menu);
 
 function ListItem({
   getItemProps,
@@ -40,8 +40,8 @@ function ListItem({
   highlightedIndex,
   ...props
 }) {
-  const isSelected = selectedItem?.id === item.id
-  const isHighlighted = highlightedIndex === index
+  const isSelected = selectedItem?.id === item.id;
+  const isHighlighted = highlightedIndex === index;
   return (
     <li
       {...getItemProps({
@@ -54,19 +54,19 @@ function ListItem({
         ...props,
       })}
     />
-  )
+  );
 }
-ListItem = React.memo(ListItem)
+ListItem = React.memo(ListItem);
 
 function App() {
-  const forceRerender = useForceRerender()
-  const [inputValue, setInputValue] = React.useState('')
+  const forceRerender = useForceRerender();
+  const [inputValue, setInputValue] = React.useState('');
 
-  const {data: allItems, run} = useAsync({data: [], status: 'pending'})
+  const { data: allItems, run } = useAsync({ data: [], status: 'pending' });
   React.useEffect(() => {
-    run(getItems(inputValue))
-  }, [inputValue, run])
-  const items = allItems.slice(0, 100)
+    run(getItems(inputValue));
+  }, [inputValue, run]);
+  const items = allItems.slice(0, 100);
 
   const {
     selectedItem,
@@ -80,15 +80,15 @@ function App() {
   } = useCombobox({
     items,
     inputValue,
-    onInputValueChange: ({inputValue: newValue}) => setInputValue(newValue),
-    onSelectedItemChange: ({selectedItem}) =>
+    onInputValueChange: ({ inputValue: newValue }) => setInputValue(newValue),
+    onSelectedItemChange: ({ selectedItem }) =>
       alert(
         selectedItem
           ? `You selected ${selectedItem.name}`
           : 'Selection Cleared',
       ),
     itemToString: item => (item ? item.name : ''),
-  })
+  });
 
   return (
     <div className="city-app">
@@ -96,7 +96,7 @@ function App() {
       <div>
         <label {...getLabelProps()}>Find a city</label>
         <div {...getComboboxProps()}>
-          <input {...getInputProps({type: 'text'})} />
+          <input {...getInputProps({ type: 'text' })} />
           <button onClick={() => selectItem(null)} aria-label="toggle menu">
             &#10005;
           </button>
@@ -110,10 +110,10 @@ function App() {
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
 
 /*
 eslint

@@ -2,10 +2,10 @@
 // http://localhost:3000/isolated/exercise/02.js
 
 import * as React from 'react';
-import {useCombobox} from '../use-combobox';
-// import {getItems} from '../filter-cities';
-import {getItems} from '../workerized-filter-cities';
-import {useForceRerender, useAsync} from '../utils';
+import { useCombobox } from '../use-combobox';
+// import { getItems } from '../filter-cities';
+import { getItems } from '../workerized-filter-cities';
+import { useForceRerender, useAsync } from '../utils';
 function Menu({
   items,
   getMenuProps,
@@ -62,7 +62,7 @@ function App() {
 
   // 🐨 wrap getItems in a call to `React.useMemo`
   // const allItems = React.useMemo(() => getItems(inputValue), [inputValue]);
-  const {data, run} = useAsync({data: [], status: 'pending'});
+  const { data, run } = useAsync({ data: [], status: 'pending' });
   React.useEffect(() => {
     run(getItems(inputValue));
   }, [inputValue, run]);
@@ -80,8 +80,8 @@ function App() {
   } = useCombobox({
     items,
     inputValue,
-    onInputValueChange: ({inputValue: newValue}) => setInputValue(newValue),
-    onSelectedItemChange: ({selectedItem}) =>
+    onInputValueChange: ({ inputValue: newValue }) => setInputValue(newValue),
+    onSelectedItemChange: ({ selectedItem }) =>
       alert(
         selectedItem
           ? `You selected ${selectedItem.name}`
@@ -96,7 +96,7 @@ function App() {
       <div>
         <label {...getLabelProps()}>Find a city</label>
         <div {...getComboboxProps()}>
-          <input {...getInputProps({type: 'text'})} />
+          <input {...getInputProps({ type: 'text' })} />
           <button onClick={() => selectItem(null)} aria-label="toggle menu">
             &#10005;
           </button>
