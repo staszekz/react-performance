@@ -12,6 +12,7 @@ import {
 
 const AppStateContext = React.createContext();
 const AppDispatchContext = React.createContext();
+const AppDogContext = React.createContext();
 
 const initialGrid = Array.from({ length: 100 }, () =>
   Array.from({ length: 100 }, () => Math.random() * 100),
@@ -42,10 +43,16 @@ function AppProvider({ children }) {
     dogName: '',
     grid: initialGrid,
   });
+  const dogValue = React.useMemo(
+    () => [{ dogName: state.dogName }, dispatch],
+    [state.dogName],
+  );
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
-        {children}
+        <AppDogContext.Provider value={dogValue}>
+          {children}
+        </AppDogContext.Provider>
       </AppDispatchContext.Provider>
     </AppStateContext.Provider>
   );
@@ -63,6 +70,14 @@ function useAppDispatch() {
   const context = React.useContext(AppDispatchContext);
   if (!context) {
     throw new Error('useAppDispatch must be used within the AppProvider');
+  }
+  return context;
+}
+
+function useAppDogName() {
+  const context = React.useContext(AppDogContext);
+  if (!context) {
+    throw new Error('AppDogContext must be used within the AppProvider');
   }
   return context;
 }
@@ -108,15 +123,14 @@ Cell = React.memo(Cell);
 function DogNameInput() {
   // 🐨 replace the useAppState and useAppDispatch with a normal useState here
   // to manage the dogName locally within this component
-  // const state = useAppState()
-  // const dispatch = useAppDispatch()
-  // const {dogName} = state
+  // const state = useAppState();
+  // const dispatch = useAppDispatch();
+  const [dogName, dispatch] = useAppDogName();
 
-  const [dogName, setDogName] = React.useState('');
   function handleChange(event) {
     const newDogName = event.target.value;
     // 🐨 change this to call your state setter that you get from useState
-    setDogName(newDogName);
+    dispatch({ type: 'TYPED_IN_DOG_INPUT', dogName: newDogName });
   }
 
   return (
