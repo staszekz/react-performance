@@ -20,11 +20,6 @@ const initialGrid = Array.from({ length: 100 }, () =>
 
 function appReducer(state, action) {
   switch (action.type) {
-    // we're no longer managing the dogName state in our reducer
-    // 💣 remove this case
-    case 'TYPED_IN_DOG_INPUT': {
-      return { ...state, dogName: action.dogName };
-    }
     case 'UPDATE_GRID_CELL': {
       return { ...state, grid: updateGridCellState(state.grid, action) };
     }
@@ -37,24 +32,40 @@ function appReducer(state, action) {
   }
 }
 
+function dogReducer(state, action) {
+  switch (action.type) {
+    case 'TYPED_IN_DOG_INPUT': {
+      return { ...state, dogName: action.dogName };
+    }
+
+    default: {
+      throw new Error(`Unhandled action type: ${action.type}`);
+    }
+  }
+}
+
 function AppProvider({ children }) {
   const [state, dispatch] = React.useReducer(appReducer, {
     // 💣 remove the dogName state because we're no longer managing that
-    dogName: '',
     grid: initialGrid,
   });
-  const dogValue = React.useMemo(
-    () => [{ dogName: state.dogName }, dispatch],
-    [state.dogName],
-  );
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
-        <AppDogContext.Provider value={dogValue}>
-          {children}
-        </AppDogContext.Provider>
+        {children}
       </AppDispatchContext.Provider>
     </AppStateContext.Provider>
+  );
+}
+
+function DogProvider({ children }) {
+  const [state, dispatch] = React.useReducer(dogReducer, {
+    dogName: '',
+  });
+  const value = [state, dispatch];
+
+  return (
+    <AppDogContext.Provider value={value}>{children}</AppDogContext.Provider>
   );
 }
 
@@ -155,12 +166,14 @@ function App() {
   return (
     <div className="grid-app">
       <button onClick={forceRerender}>force rerender</button>
-      <AppProvider>
-        <div>
+      <div>
+        <DogProvider>
           <DogNameInput />
+        </DogProvider>
+        <AppProvider>
           <Grid />
-        </div>
-      </AppProvider>
+        </AppProvider>
+      </div>
     </div>
   );
 }
