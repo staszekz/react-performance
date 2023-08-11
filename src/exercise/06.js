@@ -35,7 +35,7 @@ function appReducer(state, action) {
 function dogReducer(state, action) {
   switch (action.type) {
     case 'TYPED_IN_DOG_INPUT': {
-      return { ...state, dogName: action.dogName };
+      return action.dogName;
     }
 
     default: {
@@ -59,9 +59,7 @@ function AppProvider({ children }) {
 }
 
 function DogProvider({ children }) {
-  const [state, dispatch] = React.useReducer(dogReducer, {
-    dogName: '',
-  });
+  const [state, dispatch] = React.useReducer(dogReducer, '');
   const value = [state, dispatch];
 
   return (
@@ -111,7 +109,7 @@ function Grid() {
 }
 Grid = React.memo(Grid);
 
-function CellImpl({ cell, row, column }) {
+function Cell({ state: cell, row, column }) {
   const dispatch = useAppDispatch();
   const handleClick = () => dispatch({ type: 'UPDATE_GRID_CELL', row, column });
   return (
@@ -127,17 +125,30 @@ function CellImpl({ cell, row, column }) {
     </button>
   );
 }
-CellImpl = React.memo(CellImpl);
+Cell = withStateSlice(
+  Cell,
+  (state, { row, column }) => state.grid[row][column],
+);
 
-function Cell({ row, column }) {
-  const state = useAppState();
-
-  const cell = state.grid[row][column];
-
-  console.log('🚀 ~ cell:', cell);
-  return <CellImpl cell={cell} row={row} column={column} />;
+function withStateSlice(Component, slice) {
+  const MemoComponent = React.memo(Component);
+  function Cell(props, ref) {
+    const state = useAppState();
+    return <MemoComponent ref={ref} state={slice(state, props)} {...props} />;
+  }
+  Cell.displayName = `withStateSlice${Component.displayName || Component.name}`;
+  return React.memo(React.forwardRef(Cell));
 }
-Cell = React.memo(Cell);
+
+// function Cell({ row, column }) {
+//   const state = useAppState();
+
+//   const cell = state.grid[row][column];
+
+//   console.log('🚀 ~ cell:', cell);
+//   return <CellImpl cell={cell} row={row} column={column} />;
+// }
+// Cell = React.memo(Cell);
 
 function DogNameInput() {
   // 🐨 replace the useAppState and useAppDispatch with a normal useState here
@@ -145,6 +156,7 @@ function DogNameInput() {
   // const state = useAppState();
   // const dispatch = useAppDispatch();
   const [dogName, dispatch] = useAppDogName();
+  console.log('🚀 ~ dogName:', dogName);
 
   function handleChange(event) {
     const newDogName = event.target.value;
@@ -156,7 +168,7 @@ function DogNameInput() {
     <form onSubmit={e => e.preventDefault()}>
       <label htmlFor="dogName">Dog Name</label>
       <input
-        value={dogName}
+        value={dogName.dogName}
         onChange={handleChange}
         id="dogName"
         placeholder="Toto"
