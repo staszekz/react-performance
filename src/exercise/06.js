@@ -109,7 +109,7 @@ function Grid() {
 }
 Grid = React.memo(Grid);
 
-function Cell({ state: cell, row, column }) {
+function CellImpl({ state: cell, row, column }) {
   const dispatch = useAppDispatch();
   const handleClick = () => dispatch({ type: 'UPDATE_GRID_CELL', row, column });
   return (
@@ -125,26 +125,22 @@ function Cell({ state: cell, row, column }) {
     </button>
   );
 }
-Cell = withStateSlice(
-  Cell,
+const Cell = withStateSlice(
+  CellImpl,
   (state, { row, column }) => state.grid[row][column],
 );
 
-function withStateSlice(Component, slice) {
+function withStateSlice(Component, slicer) {
   const MemoComponent = React.memo(Component);
-  function Cell(props, ref) {
+  function Wrapper(props) {
     const state = useAppState();
-    return <MemoComponent ref={ref} state={slice(state, props)} {...props} />;
+    return <MemoComponent state={slicer(state, props)} {...props} />;
   }
-  Cell.displayName = `withStateSlice${Component.displayName || Component.name}`;
-  return React.memo(React.forwardRef(Cell));
+  Wrapper = React.memo(Wrapper);
+  return Wrapper;
 }
 
 // function Cell({ row, column }) {
-//   const state = useAppState();
-
-//   const cell = state.grid[row][column];
-
 //   console.log('🚀 ~ cell:', cell);
 //   return <CellImpl cell={cell} row={row} column={column} />;
 // }
